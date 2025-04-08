@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Islamic AI Assistant | Guidance Based on Quran & Sunnah</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Poppins:wght@300;400;500;600&display=swap');
+
+    :root {
+      --primary-color: #2c786c;
+      --secondary-color: #004445;
+      --accent-color: #f8b400;
+      --light-color: #faf5e4;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: var(--light-color);
+      color: #333;
+    }
+
+    .arabic-text {
+      font-family: 'Amiri', serif;
+      font-size: 1.5rem;
+      line-height: 2.5rem;
+      direction: rtl;
+    }
+
+    .chat-bubble {
+      border-radius: 1.5rem;
+      position: relative;
+      max-width: 80%;
+      padding: 1rem 1.5rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .user-bubble {
+      background-color: var(--primary-color);
+      color: white;
+      margin-left: auto;
+      border-bottom-right-radius: 0.5rem;
+    }
+
+    .ai-bubble {
+      background-color: white;
+      color: #333;
+      margin-right: auto;
+      border-bottom-left-radius: 0.5rem;
+    }
+
+    .typing-indicator {
+      display: flex;
+      padding: 1rem;
+    }
+
+    .typing-dot {
+      width: 8px;
+      height: 8px;
+      background-color: var(--primary-color);
+      border-radius: 50%;
+      margin: 0 2px;
+      animation: typing 1.4s infinite ease-in-out;
+    }
+
+    .typing-dot:nth-child(1) {
+      animation-delay: 0s;
+    }
+
+    .typing-dot:nth-child(2) {
+      animation-delay: 0.2s;
+    }
+
+    .typing-dot:nth-child(3) {
+      animation-delay: 0.4s;
+    }
+
+    @keyframes typing {
+
+      0%,
+      60%,
+      100% {
+        transform: translateY(0);
+      }
+
+      30% {
+        transform: translateY(-5px);
+      }
+    }
+
+    .disclaimer {
+      border-left: 4px solid var(--accent-color);
+      background-color: rgba(248, 180, 0, 0.1);
+    }
+
+    .gradient-bg {
+      background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    }
+
+    .btn-primary {
+      background-color: var(--primary-color);
+      color: white;
+      transition: all 0.3s ease;
+    }
+
+    .btn-primary:hover {
+      background-color: var(--secondary-color);
+      transform: translateY(-2px);
+    }
+
+    .btn-primary:active {
+      transform: translateY(0);
+    }
+
+    .suggested-question {
+      transition: all 0.3s ease;
+    }
+
+    .suggested-question:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Fullscreen styles */
+    .fullscreen-chat {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 1000;
+      background: white;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .fullscreen-header {
+      background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+      padding: 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: white;
+    }
+
+    .fullscreen-chat-container {
+      flex-grow: 1;
+      overflow-y: auto;
+      padding: 1rem;
+    }
+
+    .fullscreen-input-container {
+      padding: 1rem;
+      border-top: 1px solid #eee;
+    }
+
+    .fullscreen-toggle {
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .fullscreen-toggle:hover {
+      transform: scale(1.1);
+    }
+  </style>
+</head>
+
+<body class="min-h-screen flex flex-col">
+  <!-- Header -->
+  <header class="gradient-bg text-white shadow-lg">
+    <div class="container mx-auto px-4 py-6">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center space-x-4">
+          <i class="fas fa-mosque text-3xl"></i>
+          <h1 class="text-2xl font-bold">Islamic AI Assistant</h1>
+        </div>
+        <nav>
+          <ul class="flex space-x-6">
+            <li><a href="#" class="hover:text-yellow-200 transition"><i class="fas fa-home mr-1"></i> Home</a></li>
+            <li><a href="#" class="hover:text-yellow-200 transition"><i class="fas fa-info-circle mr-1"></i> About</a>
+            </li>
+            <li><a href="#" class="hover:text-yellow-200 transition"><i class="fas fa-book-quran mr-1"></i>
+                Resources</a></li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="flex-grow container mx-auto px-4 py-8">
+    <div class="max-w-4xl mx-auto">
+      <!-- Welcome Section -->
+      <section class="text-center mb-12">
+        <h2 class="text-3xl md:text-4xl font-bold mb-4 text-gray-800">Seek Islamic Knowledge with AI Assistance</h2>
+        <p class="text-lg text-gray-600 mb-6">Ask questions about Islam and receive answers based on Quran and Sunnah
+        </p>
+        <div class="flex justify-center">
+          <div class="relative w-full max-w-xl">
+            <input type="text" id="question-input" placeholder="Ask your question about Islam..."
+                               class="w-full px-6 py-4 rounded-full border-2 border-gray-200 focus:outline-none focus:border-green-500 shadow-md transition">
+            <button id="ask-button" class="btn-primary absolute right-2 top-2 px-6 py-2 rounded-full flex items-center">
+                            <i class="fas fa-paper-plane mr-2"></i> Ask
+                        </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Suggested Questions -->
+      <section class="mb-12">
+        <h3 class="text-xl font-semibold mb-4 text-gray-700">Common Questions:</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <button class="suggested-question bg-white p-4 rounded-xl shadow-md text-left hover:bg-gray-50">
+                        <i class="fas fa-hand-point-right text-green-500 mr-2"></i> What are the five pillars of Islam?
+                    </button>
+          <button class="suggested-question bg-white p-4 rounded-xl shadow-md text-left hover:bg-gray-50">
+                        <i class="fas fa-hand-point-right text-green-500 mr-2"></i> How to perform wudu correctly?
+                    </button>
+          <button class="suggested-question bg-white p-4 rounded-xl shadow-md text-left hover:bg-gray-50">
+                        <i class="fas fa-hand-point-right text-green-500 mr-2"></i> What does Islam say about kindness?
+                    </button>
+          <button class="suggested-question bg-white p-4 rounded-xl shadow-md text-left hover:bg-gray-50">
+                        <i class="fas fa-hand-point-right text-green-500 mr-2"></i> Explain the concept of Tawheed
+                    </button>
+        </div>
+      </section>
+
+      <!-- Chat Container -->
+      <section id="chat-section" class="bg-white rounded-2xl shadow-xl overflow-hidden">
+        <div class="p-6 bg-gradient-to-r from-green-600 to-green-800 text-white">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center">
+              <div class="w-10 h-10 rounded-full bg-white flex items-center justify-center mr-3">
+                <i class="fas fa-robot text-green-600 text-xl"></i>
+              </div>
+              <h3 class="text-xl font-semibold">Islamic AI Assistant</h3>
+            </div>
+            <button id="fullscreen-toggle" class="text-white hover:text-yellow-200 transition">
+                            <i class="fas fa-expand"></i>
+                        </button>
+          </div>
+        </div>
+
+        <div id="chat-container" class="p-6 h-96 overflow-y-auto">
+          <!-- Initial greeting -->
+          <div class="ai-bubble chat-bubble">
+            <div class="flex items-start mb-2">
+              <div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center mr-3">
+                <i class="fas fa-robot text-green-600"></i>
+              </div>
+              <div>
+                <p class="font-semibold text-green-700">Islamic AI</p>
+              </div>
+            </div>
+            <div class="pl-11">
+              <p class="mb-2">Assalamu alaikum! I'm here to help you with questions about Islam. What would you like to
+                know?</p>
+              <p class="text-sm text-gray-500"><i class="fas fa-info-circle mr-1"></i> Please verify any references with
+                authentic Islamic sources.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="p-4 border-t border-gray-200">
+          <div class="flex">
+            <input type="text" id="chat-input" placeholder="Type your question..."
+                               class="flex-grow px-4 py-3 rounded-l-lg border border-gray-300 focus:outline-none focus:border-green-500">
+            <button id="send-button" class="btn-primary px-6 py-3 rounded-r-lg">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+          </div>
+          <div class="mt-2 text-xs text-gray-500 disclaimer px-3 py-2 rounded">
+            <i class="fas fa-exclamation-triangle mr-1 text-yellow-500"></i>
+            <strong>Important:</strong> The information provided is generated by AI. Always cross-reference Quranic
+            verses and Hadith numbers with authentic Islamic resources.
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="gradient-bg text-white py-8">
+    <div class="container mx-auto px-4">
+      <div class="flex flex-col md:flex-row justify-between items-center">
+        <div class="mb-4 md:mb-0">
+          <h3 class="text-xl font-bold mb-2">Islamic AI Assistant</h3>
+          <p class="text-sm">Guidance based on Quran and Sunnah</p>
+        </div>
+        <div class="flex space-x-6">
+          <a href="#" class="hover:text-yellow-200 transition"><i class="fab fa-facebook-f"></i></a>
+          <a href="#" class="hover:text-yellow-200 transition"><i class="fab fa-twitter"></i></a>
+          <a href="#" class="hover:text-yellow-200 transition"><i class="fab fa-instagram"></i></a>
+        </div>
+      </div>
+      <div class="mt-6 pt-6 border-t border-green-400 text-center text-sm">
+        <p>&copy; 2023 Islamic AI Assistant. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Fullscreen Chat (hidden by default) -->
+  <div id="fullscreen-chat" class="fullscreen-chat hidden">
+    <div class="fullscreen-header">
+      <div class="flex items-center">
+        <div class="w-10 h-10 rounded-full bg-white flex items-center justify-center mr-3">
+          <i class="fas fa-robot text-green-600 text-xl"></i>
+        </div>
+        <h3 class="text-xl font-semibold">Islamic AI Assistant</h3>
+      </div>
+      <button id="exit-fullscreen" class="text-white hover:text-yellow-200 transition">
+                <i class="fas fa-compress"></i>
+            </button>
+    </div>
+
+    <div id="fullscreen-chat-container" class="fullscreen-chat-container">
+      <!-- Chat content will be copied here -->
+    </div>
+
+    <div class="fullscreen-input-container">
+      <div class="flex">
+        <input type="text" id="fullscreen-chat-input" placeholder="Type your question..."
+                       class="flex-grow px-4 py-3 rounded-l-lg border border-gray-300 focus:outline-none focus:border-green-500">
+        <button id="fullscreen-send-button" class="btn-primary px-6 py-3 rounded-r-lg">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+      </div>
+      <div class="mt-2 text-xs text-gray-500 disclaimer px-3 py-2 rounded">
+        <i class="fas fa-exclamation-triangle mr-1 text-yellow-500"></i>
+        <strong>Important:</strong> The information provided is generated by AI. Always cross-reference Quranic verses
+        and Hadith numbers with authentic Islamic resources.
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    // DOM Elements
+        const chatContainer = document.getElementById('chat-container');
+        const chatInput = document.getElementById('chat-input');
+        const sendButton = document.getElementById('send-button');
+        const questionInput = document.getElementById('question-input');
+        const askButton = document.getElementById('ask-button');
+        const suggestedQuestions = document.querySelectorAll('.suggested-question');
+        const fullscreenToggle = document.getElementById('fullscreen-toggle');
+        const exitFullscreen = document.getElementById('exit-fullscreen');
+        const fullscreenChat = document.getElementById('fullscreen-chat');
+        const fullscreenChatContainer = document.getElementById('fullscreen-chat-container');
+        const fullscreenChatInput = document.getElementById('fullscreen-chat-input');
+        const fullscreenSendButton = document.getElementById('fullscreen-send-button');
+        
+        // Fullscreen state
+        let isFullscreen = false;
+        
+        // Toggle fullscreen mode
+        function toggleFullscreen() {
+            isFullscreen = !isFullscreen;
+            
+            if (isFullscreen) {
+                // Copy chat content to fullscreen container
+                fullscreenChatContainer.innerHTML = chatContainer.innerHTML;
+                
+                // Set the input value if there's any
+                fullscreenChatInput.value = chatInput.value;
+                
+                // Show fullscreen chat
+                fullscreenChat.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+            } else {
+                // Copy chat content back to normal container if modified
+                chatContainer.innerHTML = fullscreenChatContainer.innerHTML;
+                
+                // Set the input value if there's any
+                chatInput.value = fullscreenChatInput.value;
+                
+                // Hide fullscreen chat
+                fullscreenChat.classList.add('hidden');
+                document.body.style.overflow = '';
+            }
+            
+            // Scroll to bottom
+            if (isFullscreen) {
+                fullscreenChatContainer.scrollTop = fullscreenChatContainer.scrollHeight;
+            } else {
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            }
+        }
+        
+        // Add typing indicator to chat
+        function showTypingIndicator(isFullscreenMode = false) {
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'typing-indicator ai-bubble chat-bubble';
+            typingDiv.innerHTML = `
+                <div class="flex items-start mb-2">
+                    <div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center mr-3">
+                        <i class="fas fa-robot text-green-600"></i>
+                    </div>
+                    <div>
+                        <p class="font-semibold text-green-700">Islamic AI</p>
+                    </div>
+                </div>
+                <div class="pl-11">
+                    <div class="flex">
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                    </div>
+                </div>
+            `;
+            
+            if (isFullscreenMode) {
+                fullscreenChatContainer.appendChild(typingDiv);
+                fullscreenChatContainer.scrollTop = fullscreenChatContainer.scrollHeight;
+            } else {
+                chatContainer.appendChild(typingDiv);
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            }
+            
+            return typingDiv;
+        }
+        
+        // Remove typing indicator
+        function removeTypingIndicator(indicator) {
+            if (indicator && indicator.parentNode) {
+                indicator.parentNode.removeChild(indicator);
+            }
+        }
+        
+        // Add user message to chat
+        function addUserMessage(message, isFullscreenMode = false) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'user-bubble chat-bubble';
+            messageDiv.innerHTML = `
+                <div class="flex items-start mb-2">
+                    <div class="w-8 h-8 rounded-full bg-white flex items-center justify-center mr-3">
+                        <i class="fas fa-user text-green-600"></i>
+                    </div>
+                    <div>
+                        <p class="font-semibold text-white">You</p>
+                    </div>
+                </div>
+                <div class="pl-11">
+                    <p>${message}</p>
+                </div>
+            `;
+            
+            if (isFullscreenMode) {
+                fullscreenChatContainer.appendChild(messageDiv);
+                fullscreenChatContainer.scrollTop = fullscreenChatContainer.scrollHeight;
+            } else {
+                chatContainer.appendChild(messageDiv);
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            }
+        }
+        
+        // Add AI message to chat
+        function addAiMessage(message, isFullscreenMode = false) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'ai-bubble chat-bubble';
+            messageDiv.innerHTML = `
+                <div class="flex items-start mb-2">
+                    <div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center mr-3">
+                        <i class="fas fa-robot text-green-600"></i>
+                    </div>
+                    <div>
+                        <p class="font-semibold text-green-700">Islamic AI</p>
+                    </div>
+                </div>
+                <div class="pl-11">
+                    ${message.split('\n\n').map(paragraph => `<p class="mb-3">${paragraph}</p>`).join('')}
+                    <div class="mt-3 text-xs text-gray-500 disclaimer px-3 py-2 rounded">
+                        <i class="fas fa-exclamation-triangle mr-1 text-yellow-500"></i>
+                        <strong>Important:</strong> Always verify Quranic verses and Hadith numbers with authentic Islamic sources.
+                    </div>
+                </div>
+            `;
+            
+            if (isFullscreenMode) {
+                fullscreenChatContainer.appendChild(messageDiv);
+                fullscreenChatContainer.scrollTop = fullscreenChatContainer.scrollHeight;
+            } else {
+                chatContainer.appendChild(messageDiv);
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            }
+        }
+        
+        // Fetch response from API
+        async function getAiResponse(question) {
+            try {
+                const response = await fetch(`https://vor-apis.biz.id/api/islamai?q=${encodeURIComponent(question)}`);
+                const data = await response.json();
+                return data.result;
+            } catch (error) {
+                console.error('Error fetching AI response:', error);
+                return "I apologize, but I'm currently unable to provide a response. Please try again later or consult with a knowledgeable scholar.";
+            }
+        }
+        
+        // Handle sending a message
+        async function sendMessage(isFullscreenMode = false) {
+            const inputField = isFullscreenMode ? fullscreenChatInput : chatInput;
+            const message = inputField.value.trim() || questionInput.value.trim();
+            
+            if (!message) return;
+            
+            // Clear inputs
+            inputField.value = '';
+            if (!isFullscreenMode) {
+                questionInput.value = '';
+            }
+            
+            // Add user message
+            addUserMessage(message, isFullscreenMode);
+            
+            // Show typing indicator
+            const typingIndicator = showTypingIndicator(isFullscreenMode);
+            
+            // Get AI response
+            const aiResponse = await getAiResponse(message);
+            
+            // Remove typing indicator and add AI response
+            removeTypingIndicator(typingIndicator);
+            addAiMessage(aiResponse, isFullscreenMode);
+        }
+        
+        // Event listeners
+        sendButton.addEventListener('click', () => sendMessage(false));
+        askButton.addEventListener('click', () => sendMessage(false));
+        fullscreenSendButton.addEventListener('click', () => sendMessage(true));
+        
+        chatInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendMessage(false);
+        });
+        
+        questionInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendMessage(false);
+        });
+        
+        fullscreenChatInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendMessage(true);
+        });
+        
+        // Suggested questions
+        suggestedQuestions.forEach(button => {
+            button.addEventListener('click', async () => {
+                const question = button.textContent.trim().replace('→', '').trim();
+                questionInput.value = question;
+                chatInput.value = question;
+                fullscreenChatInput.value = question;
+                
+                // Trigger send
+                await sendMessage(false);
+            });
+        });
+        
+        // Fullscreen toggle
+        fullscreenToggle.addEventListener('click', toggleFullscreen);
+        exitFullscreen.addEventListener('click', toggleFullscreen);
+  </script>
+<p style="border-radius: 8px; text-align: center; font-size: 12px; color: #fff; margin-top: 16px;position: fixed; left: 8px; bottom: 8px; z-index: 10; background: rgba(0, 0, 0, 0.8); padding: 4px 8px;">Made with <img src="https://enzostvs-deepsite.hf.space/logo.svg" alt="DeepSite Logo" style="width: 16px; height: 16px; vertical-align: middle;display:inline-block;margin-right:3px;filter:brightness(0) invert(1);"><a href="https://enzostvs-deepsite.hf.space" style="color: #fff;text-decoration: underline;" target="_blank" >DeepSite</a> - 🧬 <a href="https://enzostvs-deepsite.hf.space?remix=Kenziq/ai" style="color: #fff;text-decoration: underline;" target="_blank" >Remix</a></p></body>
+
+</html>
